@@ -12,33 +12,46 @@
             height: 100%; 
             margin: 0;
             overflow: hidden;
+            user-select: none;
             font-family: "Roboto", Calibri;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
             height: 100vh;
+            gap: 1vh;
         }
+        
         img {
             image-rendering: pixelated;
+        }
+
+        #click:active img {
+            transform: scale(0.95);
+            transition: transform 0.05s;
         }
     </style>
 </head>
 <body>
     <div id="bamboo">0</div>
-    <button id="click" style="user-select: none;"><img src="./img/panda.png" width=200></button>
+    <button id="click"><img src="./img/panda.png" width=200></button>
     <button id="upgrade_click">Upgrade Click: 101</button>
+    <button id="bamboo_miner">Bamboo Miner: 20</button>
     <script>
         let bamboo = parseInt(localStorage.getItem("bamboo")) || 0
         let clickAmount = parseInt(localStorage.getItem("clickAmount")) || 1
+        let mineAmount = parseInt(localStorage.getItem("extractAmount")) || 0
         let click = document.getElementById("click")
         let upgrade_click = document.getElementById("upgrade_click")
+        let bamboo_miner = document.getElementById("bamboo_miner")
 
         function refresh() {
             localStorage.setItem("bamboo", bamboo)
             localStorage.setItem("clickAmount", clickAmount)
+            localStorage.setItem("extractAmount", mineAmount)
             document.getElementById("bamboo").innerHTML = bamboo
-            upgrade_click.innerHTML = "Upgrade Click: $" + (clickAmount * clickAmount * clickAmount * clickAmount * clickAmount + 200)
+            upgrade_click.innerHTML = "(" + (clickAmount - 1) + ") " + "Upgrade Click: $" + ((clickAmount ** 7) + 300)
+            bamboo_miner.innerHTML = "(" + (mineAmount) + ") " + "Bamboo Miner: $" + (mineAmount ** 3 + 20)
         }
         refresh()
         click.onclick = function(){
@@ -46,13 +59,25 @@
             refresh()
         }
         upgrade_click.onclick = function(){
-            const cost = clickAmount * clickAmount * clickAmount * clickAmount * clickAmount + 200
+            const cost = (clickAmount ** 7) + 300
             if (bamboo >= cost){
                 bamboo -= cost
                 clickAmount += 1
                 refresh()
             }
         }
+        bamboo_miner.onclick = function(){
+            const cost = mineAmount ** 3 + 20
+            if (bamboo >= cost){
+                bamboo -= cost
+                mineAmount += 1
+                refresh()
+            }
+        }
+        setInterval(() => { 
+            bamboo += mineAmount;
+            refresh();
+        }, 500);
     </script>
 </body>
 </html>
