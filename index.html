@@ -13,24 +13,45 @@
             margin: 0;
             overflow: hidden;
             font-family: "Roboto", Calibri;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+        }
+        img {
+            image-rendering: pixelated;
         }
     </style>
 </head>
 <body>
     <div id="bamboo">0</div>
-    <button id="click">HEWO</button>
+    <button id="click" style="user-select: none;"><img src="./img/panda.png" width=200></button>
+    <button id="upgrade_click">Upgrade Click: 101</button>
     <script>
-        let bamboo = 0
-        localStorage.getItem("bamboo") ? bamboo = parseInt(localStorage.getItem("bamboo")) : bamboo = 0
-        click = document.getElementById("click")
+        let bamboo = parseInt(localStorage.getItem("bamboo")) || 0
+        let clickAmount = parseInt(localStorage.getItem("clickAmount")) || 1
+        let click = document.getElementById("click")
+        let upgrade_click = document.getElementById("upgrade_click")
+
         function refresh() {
             localStorage.setItem("bamboo", bamboo)
+            localStorage.setItem("clickAmount", clickAmount)
             document.getElementById("bamboo").innerHTML = bamboo
+            upgrade_click.innerHTML = "Upgrade Click: $" + (clickAmount * clickAmount * clickAmount * clickAmount * clickAmount + 200)
         }
         refresh()
         click.onclick = function(){
-            bamboo += 1
+            bamboo += clickAmount
             refresh()
+        }
+        upgrade_click.onclick = function(){
+            const cost = clickAmount * clickAmount * clickAmount * clickAmount * clickAmount + 200
+            if (bamboo >= cost){
+                bamboo -= cost
+                clickAmount += 1
+                refresh()
+            }
         }
     </script>
 </body>
