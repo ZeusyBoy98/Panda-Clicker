@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panda Clicker</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap');
+        body {
+            width: 100%;
+            height: 100%; 
+            margin: 0;
+            overflow: hidden;
+            font-family: "Roboto", Calibri;
+        }
+    </style>
+</head>
+<body>
+    <div id="bamboo">0</div>
+    <button id="click">HEWO</button>
+    <script>
+        let bamboo = 0
+        localStorage.getItem("bamboo") ? bamboo = parseInt(localStorage.getItem("bamboo")) : bamboo = 0
+        click = document.getElementById("click")
+        function refresh() {
+            localStorage.setItem("bamboo", bamboo)
+            document.getElementById("bamboo").innerHTML = bamboo
+        }
+        refresh()
+        click.onclick = function(){
+            bamboo += 1
+            refresh()
+        }
+    </script>
+</body>
+</html>
