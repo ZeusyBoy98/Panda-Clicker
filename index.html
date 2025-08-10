@@ -11,7 +11,6 @@
             width: 100%;
             height: 100%; 
             margin: 0;
-            overflow: hidden;
             user-select: none;
             background-image: url('./img/bgBamboo.png');
             font-family: "Roboto", Calibri;
@@ -73,10 +72,10 @@
             localStorage.setItem("frequency_amount", frequency_amount)
             document.getElementById("bamboo").innerHTML = `<img src="./img/bamboo.png" width=32>${bamboo == 69 ? "nice" : bamboo}`
             upgrade_click.innerHTML = "(" + (clickAmount - 1) + ") " + "Upgrade Click: $" + ((clickAmount ** 7) + 300)
-            upgrade_frequency.innerHTML = "(" + (frequency_amount) + ") " + "Upgrade Frequency: $" + (((frequency_amount * 2) ** 7) + 1000)
+            upgrade_frequency.innerHTML = "(" + (frequency > 99 ? frequency_amount : "max") + ") " + "Upgrade Frequency: $" + (((frequency_amount * 2) ** 5) + 1000)
             bamboo_miner.innerHTML = "(" + (mineAmount) + ") " + "Bamboo Miner: $" + (mineAmount ** 3 + 20)
-            bamboo_extractor.innerHTML = "(" + (extractAmount / 2) + ") " + "Bamboo Extractor: $" + (extractAmount ** 4 + 400)
-            bamboo_harvester.innerHTML = "(" + (harvestAmount / 10) + ") " + "Bamboo Harvester: $" + (harvestAmount ** 3 + 2000)
+            bamboo_extractor.innerHTML = "(" + (extractAmount / 5) + ") " + "Bamboo Extractor: $" + (extractAmount ** 3 + 400)
+            bamboo_harvester.innerHTML = "(" + (harvestAmount / 50) + ") " + "Bamboo Harvester: $" + (harvestAmount ** 2 + 2000)
             bamboo_factory.innerHTML = "(" + (factoryAmount / 100) + ") " + "Bamboo Factory: $" + (factoryAmount ** 2 + 50000)
             goal.innerHTML = bamboo < 1000000 ? "Goal: Reach 1,000,000 Bamboo" : "You Won!"
         }
@@ -94,7 +93,7 @@
             }
         }
         upgrade_frequency.onclick = function(){
-            const cost = ((frequency_amount * 2) ** 7) + 1000
+            const cost = ((frequency_amount * 2) ** 5) + 1000
             if (bamboo >= cost && frequency > 20){
                 bamboo -= cost
                 frequency_amount += 1
@@ -111,18 +110,18 @@
             }
         }
         bamboo_extractor.onclick = function(){
-            const cost = extractAmount ** 4 + 400
+            const cost = extractAmount ** 3 + 400
             if (bamboo >= cost){
                 bamboo -= cost
-                extractAmount += 2
+                extractAmount += 5
                 refresh()
             }
         }
         bamboo_harvester.onclick = function(){
-            const cost = harvestAmount ** 3 + 2000
+            const cost = harvestAmount ** 2 + 2000
             if (bamboo >= cost){
                 bamboo -= cost
-                harvestAmount += 10
+                harvestAmount += 50
                 refresh()
             }
         }
@@ -138,6 +137,7 @@
             bamboo += mineAmount;
             bamboo += extractAmount;
             bamboo += harvestAmount;
+            bamboo += factoryAmount;
             refresh();
         }, frequency);
     </script>
