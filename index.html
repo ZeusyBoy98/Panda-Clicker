@@ -34,22 +34,30 @@
     </style>
 </head>
 <body>
+    <div style="font-size:xx-large; color: white;" id="goal">Goal: Reach 1,000,000 Bamboo</div>
     <div style="font-size:xx-large; color: white;" id="bamboo"><img src="./img/bamboo.png" width=32>0</div>
     <button id="click"><img src="./img/panda.png" width=200></button>
     <button id="upgrade_click">Upgrade Click: 101</button>
     <button id="upgrade_frequency">Upgrade frequency: 101</button>
     <button id="bamboo_miner">Bamboo Miner: 20</button>
     <button id="bamboo_extractor">Bamboo Extractor: 200</button>
+    <button id="bamboo_harvester">Bamboo Harvester</button>
+    <button id="bamboo_factory">Bamboo Factory</button>
     <script>
         let bamboo = parseInt(localStorage.getItem("bamboo")) || 0
         let clickAmount = parseInt(localStorage.getItem("clickAmount")) || 1
         let mineAmount = parseInt(localStorage.getItem("mineAmount")) || 0
         let extractAmount = parseInt(localStorage.getItem("extractAmount")) || 0
+        let harvestAmount = parseInt(localStorage.getItem("harvestAmount")) || 0
+        let factoryAmount = parseInt(localStorage.getItem("factoryAmount")) || 0
         let click = document.getElementById("click")
         let upgrade_click = document.getElementById("upgrade_click")
         let upgrade_frequency = document.getElementById("upgrade_frequency")
         let bamboo_miner = document.getElementById("bamboo_miner")
         let bamboo_extractor = document.getElementById("bamboo_extractor")
+        let bamboo_harvester = document.getElementById("bamboo_harvester")
+        let bamboo_factory = document.getElementById("bamboo_factory")
+        let goal = document.getElementById("goal")
         let frequency = parseInt(localStorage.getItem("frequency")) || 500
         let frequency_amount = parseInt(localStorage.getItem("frequency_amount")) || 0
 
@@ -58,6 +66,8 @@
             localStorage.setItem("clickAmount", clickAmount)
             localStorage.setItem("mineAmount", mineAmount)
             localStorage.setItem("extractAmount", extractAmount)
+            localStorage.setItem("harvestAmount", harvestAmount)
+            localStorage.setItem("factoryAmount", factoryAmount)
             localStorage.setItem("frequency", frequency)
             localStorage.setItem("frequency_amount", frequency_amount)
             document.getElementById("bamboo").innerHTML = `<img src="./img/bamboo.png" width=32>${bamboo == 69 ? "nice" : bamboo}`
@@ -65,6 +75,9 @@
             upgrade_frequency.innerHTML = "(" + (frequency_amount) + ") " + "Upgrade Frequency: $" + (((frequency_amount * 2) ** 7) + 1000)
             bamboo_miner.innerHTML = "(" + (mineAmount) + ") " + "Bamboo Miner: $" + (mineAmount ** 3 + 20)
             bamboo_extractor.innerHTML = "(" + (extractAmount / 2) + ") " + "Bamboo Extractor: $" + (extractAmount ** 4 + 400)
+            bamboo_harvester.innerHTML = "(" + (harvestAmount / 10) + ") " + "Bamboo Harvester: $" + (harvestAmount ** 3 + 2000)
+            bamboo_factory.innerHTML = "(" + (factoryAmount / 100) + ") " + "Bamboo Factory: $" + (factoryAmount ** 2 + 50000)
+            goal.innerHTML = bamboo < 1000000 ? "Goal: Reach 1,000,000 Bamboo" : "You Won!"
         }
         refresh()
         click.onclick = function(){
@@ -104,9 +117,26 @@
                 refresh()
             }
         }
+        bamboo_harvester.onclick = function(){
+            const cost = harvestAmount ** 3 + 2000
+            if (bamboo >= cost){
+                bamboo -= cost
+                harvestAmount += 10
+                refresh()
+            }
+        }
+        bamboo_factory.onclick = function(){
+            const cost = factoryAmount ** 2 + 50000
+            if (bamboo >= cost){
+                bamboo -= cost
+                factoryAmount += 100
+                refresh()
+            }
+        }
         setInterval(() => { 
             bamboo += mineAmount;
             bamboo += extractAmount;
+            bamboo += harvestAmount;
             refresh();
         }, frequency);
     </script>
