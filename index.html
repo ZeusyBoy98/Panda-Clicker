@@ -30,18 +30,80 @@
             transform: scale(0.95);
             transition: transform 0.05s;
         }
+        .header {
+            font-size:xx-large;
+            color: white;
+        }
+        button {
+        font-family: inherit;
+        font-size: 20px;
+        background: royalblue;
+        color: white;
+        padding: 0.7em 1em;
+        padding-left: 0.9em;
+        display: flex;
+        align-items: center;
+        border: none;
+        border-radius: 16px;
+        overflow: hidden;
+        transition: all 0.2s;
+        cursor: pointer;
+        }
+
+        button span {
+        display: block;
+        margin-left: 0.3em;
+        transition: all 0.3s ease-in-out;
+        }
+
+        button svg {
+        display: block;
+        transform-origin: center center;
+        transition: transform 0.3s ease-in-out;
+        }
+
+        button:hover .svg-wrapper {
+        animation: fly-1 0.6s ease-in-out infinite alternate;
+        }
+
+        button:hover svg {
+        transform: translateX(1.2em) rotate(45deg) scale(1.1);
+        }
+
+        button:hover span {
+        transform: translateX(5em);
+        }
+
+        button:active {
+        transform: scale(0.95);
+        }
+
+        @keyframes fly-1 {
+        from {
+            transform: translateY(0.1em);
+        }
+
+        to {
+            transform: translateY(-0.1em);
+        }
+        }
+
     </style>
 </head>
 <body>
-    <div style="font-size:xx-large; color: white;" id="goal">Goal: Reach 1,000,000 Bamboo</div>
-    <div style="font-size:xx-large; color: white;" id="bamboo"><img src="./img/bamboo.png" width=32>0</div>
+    <div class="header" id="goal">Goal: Reach 1,000,000 Bamboo</div>
+    <div id="bpm" style="color:white;">Bamboo Per Minute: </div>
+    <div class="header" id="bamboo"><img src="./img/bamboo.png" width=32>0</div>
     <button id="click"><img src="./img/panda.png" width=200></button>
     <button id="upgrade_click">Upgrade Click: 101</button>
-    <button id="upgrade_frequency">Upgrade frequency: 101</button>
+    <button id="upgrade_frequency">Auto frequency: 101</button>
     <button id="bamboo_miner">Bamboo Miner: 20</button>
     <button id="bamboo_extractor">Bamboo Extractor: 200</button>
     <button id="bamboo_harvester">Bamboo Harvester</button>
     <button id="bamboo_factory">Bamboo Factory</button>
+    <div class="header">Save Management</div>
+    <button id="exportButton">Export</button>
+    <div style="color: white;">Import: </div>
     <input type="file" id="importFile" accept=".txt" />
     <script>
         console.log("Don't do it.")
@@ -58,9 +120,11 @@
         let bamboo_extractor = document.getElementById("bamboo_extractor")
         let bamboo_harvester = document.getElementById("bamboo_harvester")
         let bamboo_factory = document.getElementById("bamboo_factory")
+        let exportButton = document.getElementById("exportButton")
         let goal = document.getElementById("goal")
         let frequency = parseInt(localStorage.getItem("frequency")) || 500
         let frequency_amount = parseInt(localStorage.getItem("frequency_amount")) || 0
+        let bpm = document.getElementById("bpm")
 
         document.getElementById("importFile").addEventListener("change", imprort);
 
@@ -74,8 +138,9 @@
             localStorage.setItem("frequency", frequency)
             localStorage.setItem("frequency_amount", frequency_amount)
             document.getElementById("bamboo").innerHTML = `<img src="./img/bamboo.png" width=32>${bamboo == 69 ? "nice" : bamboo}`
+            document.getElementById("bpm").innerHTML = `Bamboo Per Minute: ${((mineAmount + extractAmount + harvestAmount + factoryAmount) * (60000 / frequency)).toFixed(2)}` 
             upgrade_click.innerHTML = "(" + (clickAmount - 1) + ") " + "Upgrade Click: $" + ((clickAmount ** 7) + 300)
-            upgrade_frequency.innerHTML = "(" + (frequency > 99 ? frequency_amount : "max") + ") " + "Upgrade Frequency: $" + (((frequency_amount * 2) ** 5) + 1000)
+            upgrade_frequency.innerHTML = "(" + (frequency > 99 ? frequency_amount : "max") + ") " + "Auto Frequency: $" + (((frequency_amount * 2) ** 5) + 1000)
             bamboo_miner.innerHTML = "(" + (mineAmount) + ") " + "Bamboo Miner: $" + (mineAmount ** 3 + 20)
             bamboo_extractor.innerHTML = "(" + (extractAmount / 5) + ") " + "Bamboo Extractor: $" + (extractAmount ** 3 + 400)
             bamboo_harvester.innerHTML = "(" + (harvestAmount / 50) + ") " + "Bamboo Harvester: $" + (harvestAmount ** 2 + 2000)
@@ -116,12 +181,14 @@
         };
         
         function imprort(event) {
-            const file = event.target.files[0];
+            const fileInput = event.target;
+            const file = fileInput.files[0];
             if (!file) return;
+
             const reader = new FileReader();
             reader.onload = function(e) {
                 try {
-                    const base64Data = e.target.result;
+                    const base64Data = e.target.result.trim();
                     const jsonString = atob(base64Data);
                     const data = JSON.parse(jsonString);
                     bamboo = data.bamboo;
@@ -134,14 +201,14 @@
                     frequency_amount = data.frequency_amount;
                     refresh();
                     alert("Import successful!");
+                    fileInput.value = "";
                 } catch (err) {
                     alert("Failed to import: Invalid file or corrupted data.");
                     console.error(err);
                 }
             };
-
             reader.readAsText(file);
-        }
+        };
 
         click.onclick = function(){
             bamboo += clickAmount
@@ -157,7 +224,7 @@
         }
         upgrade_frequency.onclick = function(){
             const cost = ((frequency_amount * 2) ** 5) + 1000
-            if (bamboo >= cost && frequency > 20){
+            if (bamboo >= cost && frequency > 49){
                 bamboo -= cost
                 frequency_amount += 1
                 frequency -= 50
@@ -195,6 +262,9 @@
                 factoryAmount += 100
                 refresh()
             }
+        }
+        exportButton.onclick = function(){
+            exprort()
         }
         setInterval(() => { 
             bamboo += mineAmount;
