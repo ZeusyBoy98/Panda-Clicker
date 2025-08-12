@@ -42,6 +42,7 @@
     <button id="bamboo_extractor">Bamboo Extractor: 200</button>
     <button id="bamboo_harvester">Bamboo Harvester</button>
     <button id="bamboo_factory">Bamboo Factory</button>
+    <input type="file" id="importFile" accept=".txt" />
     <script>
         console.log("Don't do it.")
         let bamboo = parseInt(localStorage.getItem("bamboo")) || 0
@@ -60,6 +61,8 @@
         let goal = document.getElementById("goal")
         let frequency = parseInt(localStorage.getItem("frequency")) || 500
         let frequency_amount = parseInt(localStorage.getItem("frequency_amount")) || 0
+
+        document.getElementById("importFile").addEventListener("change", imprort);
 
         function refresh() {
             localStorage.setItem("bamboo", bamboo)
@@ -80,6 +83,66 @@
             goal.innerHTML = bamboo < 1000000 ? "Goal: Reach 1,000,000 Bamboo" : "You Won!"
         }
         refresh()
+
+        function exprort(){
+            const initData = {
+                "bamboo": bamboo,
+                "clickAmount": clickAmount,
+                "mineAmount": mineAmount,
+                "extractAmount": extractAmount,
+                "harvestAmount": harvestAmount,
+                "factoryAmount": factoryAmount,
+                "frequency": frequency,
+                "frequency_amount": frequency_amount,
+            };
+
+            const jsonString = JSON.stringify(initData);
+
+            const base64Data = btoa(jsonString);
+
+            const blob = new Blob([base64Data], { type: "text/plain" });
+            const url = URL.createObjectURL(blob);
+
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = "panda_clicker_export.txt";
+            document.body.appendChild(a);
+            a.click();
+
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+
+            refresh()
+        };
+        
+        function imprort(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const base64Data = e.target.result;
+                    const jsonString = atob(base64Data);
+                    const data = JSON.parse(jsonString);
+                    bamboo = data.bamboo;
+                    clickAmount = data.clickAmount;
+                    mineAmount = data.mineAmount;
+                    extractAmount = data.extractAmount;
+                    harvestAmount = data.harvestAmount;
+                    factoryAmount = data.factoryAmount;
+                    frequency = data.frequency;
+                    frequency_amount = data.frequency_amount;
+                    refresh();
+                    alert("Import successful!");
+                } catch (err) {
+                    alert("Failed to import: Invalid file or corrupted data.");
+                    console.error(err);
+                }
+            };
+
+            reader.readAsText(file);
+        }
+
         click.onclick = function(){
             bamboo += clickAmount
             refresh()
