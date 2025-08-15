@@ -92,6 +92,7 @@
 </head>
 <body>
     <div id="bps" style="color:white;">Bamboo Per Minute: </div>
+    <div id="click_amount" style="color:white;">Click Amount: </div>
     <div class="header" id="bamboo"><img src="./img/bamboo.png" width=32>0</div>
     <button id="click"><img src="./img/panda.png" width=200></button>
     <button id="upgrade_click">Upgrade Click: 101</button>
@@ -106,82 +107,88 @@
     <input type="file" id="importFile" accept=".txt" />
     <script>
         console.log("Don't do it.")
-        let bamboo = parseInt(localStorage.getItem("bamboo")) || 0
-        let clickAmount = parseInt(localStorage.getItem("clickAmount")) || 1
-        let mineAmount = parseInt(localStorage.getItem("mineAmount")) || 0
-        let extractAmount = parseInt(localStorage.getItem("extractAmount")) || 0
-        let harvestAmount = parseInt(localStorage.getItem("harvestAmount")) || 0
-        let factoryAmount = parseInt(localStorage.getItem("factoryAmount")) || 0
-        let click = document.getElementById("click")
-        let upgrade_click = document.getElementById("upgrade_click")
-        let upgrade_frequency = document.getElementById("upgrade_frequency")
-        let bamboo_miner = document.getElementById("bamboo_miner")
-        let bamboo_extractor = document.getElementById("bamboo_extractor")
-        let bamboo_harvester = document.getElementById("bamboo_harvester")
-        let bamboo_factory = document.getElementById("bamboo_factory")
-        let exportButton = document.getElementById("exportButton")
-        let frequency = parseInt(localStorage.getItem("frequency")) || 500
-        let frequency_amount = parseInt(localStorage.getItem("frequency_amount")) || 0
-        let bps = document.getElementById("bps")
+
+        let bamboo = parseInt(localStorage.getItem("bamboo")) || 0;
+        let clickAmount = parseInt(localStorage.getItem("clickAmount")) || 1;
+        let mineAmount = parseInt(localStorage.getItem("mineAmount")) || 0;
+        let extractAmount = parseInt(localStorage.getItem("extractAmount")) || 0;
+        let harvestAmount = parseInt(localStorage.getItem("harvestAmount")) || 0;
+        let factoryAmount = parseInt(localStorage.getItem("factoryAmount")) || 0;
+        let frequency = parseInt(localStorage.getItem("frequency")) || 500;
+        let frequency_amount = parseInt(localStorage.getItem("frequency_amount")) || 0;
+
+        // elements
+        const click = document.getElementById("click");
+        const upgrade_click = document.getElementById("upgrade_click");
+        const upgrade_frequency = document.getElementById("upgrade_frequency");
+        const bamboo_miner = document.getElementById("bamboo_miner");
+        const bamboo_extractor = document.getElementById("bamboo_extractor");
+        const bamboo_harvester = document.getElementById("bamboo_harvester");
+        const bamboo_factory = document.getElementById("bamboo_factory");
+        const exportButton = document.getElementById("exportButton");
+        const bps = document.getElementById("bps");
+        const click_amount = document.getElementById("click_amount")
 
         document.getElementById("importFile").addEventListener("change", imprort);
 
-        function refresh() {
-            localStorage.setItem("bamboo", bamboo)
-            localStorage.setItem("clickAmount", clickAmount)
-            localStorage.setItem("mineAmount", mineAmount)
-            localStorage.setItem("extractAmount", extractAmount)
-            localStorage.setItem("harvestAmount", harvestAmount)
-            localStorage.setItem("factoryAmount", factoryAmount)
-            localStorage.setItem("frequency", frequency)
-            localStorage.setItem("frequency_amount", frequency_amount)
-            document.getElementById("bamboo").innerHTML = `<img src="./img/bamboo.png" width=32>${bamboo == 69 ? "nice" : bamboo}`
-            document.getElementById("bps").innerHTML = `Bamboo Per Second: ${(((mineAmount + extractAmount + harvestAmount + factoryAmount) * (60000 / frequency))/60).toFixed(2)}` 
-            upgrade_click.innerHTML = "(" + (clickAmount - 1) + ") " + "Upgrade Click: $" + ((clickAmount ** 7) + 300)
-            upgrade_frequency.innerHTML = "(" + frequency_amount + ") " + "Auto Frequency: $" + (((frequency_amount * 2) ** 5) + 1000)
-            bamboo_miner.innerHTML = "(" + (mineAmount) + ") " + "Bamboo Miner: $" + (mineAmount ** 3 + 20)
-            bamboo_extractor.innerHTML = "(" + (extractAmount / 5) + ") " + "Bamboo Extractor: $" + (extractAmount ** 3 + 400)
-            bamboo_harvester.innerHTML = "(" + (harvestAmount / 50) + ") " + "Bamboo Harvester: $" + (harvestAmount ** 2 + 2000)
-            bamboo_factory.innerHTML = "(" + (factoryAmount / 100) + ") " + "Bamboo Factory: $" + (factoryAmount ** 2 + 50000)
+        const upgradeCosts = {
+            click:   { base: 300,   linear: 10000,  expo: 1.05, expoBoost: 10 },
+            miner:   { base: 20,    linear: 5,   expo: 1.04, expoBoost: 8 },
+            extract: { base: 400,   linear: 20,  expo: 1.05, expoBoost: 12 },
+            harv:    { base: 2000,  linear: 50,  expo: 1.05, expoBoost: 15 },
+            factory: { base: 50000, linear: 5000, expo: 1.10, expoBoost: 25 },
+            freq:    { base: 1000,  linear: 2000,  expo: 1.30, expoBoost: 500 }
+        };
+
+        function getCost(type, amount) {
+            const cfg = upgradeCosts[type];
+            return Math.floor(cfg.base + (amount * cfg.linear) + Math.pow(cfg.expo, amount) * cfg.expoBoost);
         }
-        refresh()
 
-        function exprort(){
+        function refresh() {
+            localStorage.setItem("bamboo", bamboo);
+            localStorage.setItem("clickAmount", clickAmount);
+            localStorage.setItem("mineAmount", mineAmount);
+            localStorage.setItem("extractAmount", extractAmount);
+            localStorage.setItem("harvestAmount", harvestAmount);
+            localStorage.setItem("factoryAmount", factoryAmount);
+            localStorage.setItem("frequency", frequency);
+            localStorage.setItem("frequency_amount", frequency_amount);
+
+            document.getElementById("bamboo").innerHTML = `<img src="./img/bamboo.png" width=32>${bamboo == 69 ? "nice" : bamboo}`;
+            bps.innerHTML = `Bamboo Per Second: ${(((mineAmount + extractAmount + harvestAmount + factoryAmount) * (60000 / frequency))/60).toFixed(2)}`;
+            click_amount.innerHTML = `Click Amount: ${(clickAmount)}`
+            upgrade_click.innerHTML = `(${clickAmount - 1}) Upgrade Click: $${getCost("click", clickAmount - 1)}`;
+            upgrade_frequency.innerHTML = `(${frequency_amount}) Auto Frequency: $${getCost("freq", frequency_amount)}`;
+            bamboo_miner.innerHTML = `(${mineAmount}) Bamboo Miner: $${getCost("miner", mineAmount)}`;
+            bamboo_extractor.innerHTML = `(${extractAmount / 5}) Bamboo Extractor: $${getCost("extract", extractAmount / 5)}`;
+            bamboo_harvester.innerHTML = `(${harvestAmount / 50}) Bamboo Harvester: $${getCost("harv", harvestAmount / 50)}`;
+            bamboo_factory.innerHTML = `(${factoryAmount / 100}) Bamboo Factory: $${getCost("factory", factoryAmount / 100)}`;
+        }
+        refresh();
+
+        function exprort() {
             const initData = {
-                "bamboo": bamboo,
-                "clickAmount": clickAmount,
-                "mineAmount": mineAmount,
-                "extractAmount": extractAmount,
-                "harvestAmount": harvestAmount,
-                "factoryAmount": factoryAmount,
-                "frequency": frequency,
-                "frequency_amount": frequency_amount,
+                bamboo, clickAmount, mineAmount, extractAmount,
+                harvestAmount, factoryAmount, frequency, frequency_amount
             };
-
             const jsonString = JSON.stringify(initData);
-
             const base64Data = btoa(jsonString);
-
             const blob = new Blob([base64Data], { type: "text/plain" });
             const url = URL.createObjectURL(blob);
-
             const a = document.createElement("a");
             a.href = url;
             a.download = "panda_clicker_export.txt";
             document.body.appendChild(a);
             a.click();
-
             document.body.removeChild(a);
             URL.revokeObjectURL(url);
+            refresh();
+        }
 
-            refresh()
-        };
-        
         function imprort(event) {
-            const fileInput = event.target;
-            const file = fileInput.files[0];
+            const file = event.target.files[0];
             if (!file) return;
-
             const reader = new FileReader();
             reader.onload = function(e) {
                 try {
@@ -198,71 +205,70 @@
                     frequency_amount = data.frequency_amount;
                     refresh();
                     alert("Import successful!");
-                    fileInput.value = "";
+                    event.target.value = "";
                 } catch (err) {
                     alert("Failed to import: Invalid file or corrupted data.");
                     console.error(err);
                 }
             };
             reader.readAsText(file);
-        };
+        }
 
         click.onclick = function(){
-            bamboo += clickAmount
-            refresh()
-        }
+            bamboo += clickAmount;
+            refresh();
+        };
         upgrade_click.onclick = function(){
-            const cost = (clickAmount ** 7) + 300
+            const cost = getCost("click", clickAmount - 1);
             if (bamboo >= cost){
-                bamboo -= cost
-                clickAmount *= 2
-                refresh()
+                bamboo -= cost;
+                clickAmount *= 2;
+                refresh();
             }
-        }
+        };
         upgrade_frequency.onclick = function(){
-            const cost = ((frequency_amount * 2) ** 5) + 1000
+            const cost = getCost("freq", frequency_amount);
             if (bamboo >= cost){
-                bamboo -= cost
-                frequency_amount += 1
-                frequency /= 2
-                refresh()
+                bamboo -= cost;
+                frequency_amount += 1;
+                frequency /= 2;
+                refresh();
             }
-        }
+        };
         bamboo_miner.onclick = function(){
-            const cost = mineAmount ** 3 + 20
+            const cost = getCost("miner", mineAmount);
             if (bamboo >= cost){
-                bamboo -= cost
-                mineAmount += 1
-                refresh()
+                bamboo -= cost;
+                mineAmount += 1;
+                refresh();
             }
-        }
+        };
         bamboo_extractor.onclick = function(){
-            const cost = extractAmount ** 3 + 400
+            const cost = getCost("extract", extractAmount / 5);
             if (bamboo >= cost){
-                bamboo -= cost
-                extractAmount += 5
-                refresh()
+                bamboo -= cost;
+                extractAmount += 5;
+                refresh();
             }
-        }
+        };
         bamboo_harvester.onclick = function(){
-            const cost = harvestAmount ** 2 + 2000
+            const cost = getCost("harv", harvestAmount / 50);
             if (bamboo >= cost){
-                bamboo -= cost
-                harvestAmount += 50
-                refresh()
+                bamboo -= cost;
+                harvestAmount += 50;
+                refresh();
             }
-        }
+        };
         bamboo_factory.onclick = function(){
-            const cost = factoryAmount ** 2 + 50000
+            const cost = getCost("factory", factoryAmount / 100);
             if (bamboo >= cost){
-                bamboo -= cost
-                factoryAmount += 100
-                refresh()
+                bamboo -= cost;
+                factoryAmount += 100;
+                refresh();
             }
-        }
-        exportButton.onclick = function(){
-            exprort()
-        }
+        };
+        exportButton.onclick = exprort;
+
         setInterval(() => { 
             bamboo += mineAmount;
             bamboo += extractAmount;
