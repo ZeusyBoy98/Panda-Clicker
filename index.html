@@ -92,7 +92,7 @@
 </head>
 <body>
     <div class="header" id="goal">Goal: Reach 1,000,000 Bamboo</div>
-    <div id="bpm" style="color:white;">Bamboo Per Minute: </div>
+    <div id="bps" style="color:white;">Bamboo Per Minute: </div>
     <div class="header" id="bamboo"><img src="./img/bamboo.png" width=32>0</div>
     <button id="click"><img src="./img/panda.png" width=200></button>
     <button id="upgrade_click">Upgrade Click: 101</button>
@@ -124,7 +124,7 @@
         let goal = document.getElementById("goal")
         let frequency = parseInt(localStorage.getItem("frequency")) || 500
         let frequency_amount = parseInt(localStorage.getItem("frequency_amount")) || 0
-        let bpm = document.getElementById("bpm")
+        let bps = document.getElementById("bps")
 
         document.getElementById("importFile").addEventListener("change", imprort);
 
@@ -138,7 +138,7 @@
             localStorage.setItem("frequency", frequency)
             localStorage.setItem("frequency_amount", frequency_amount)
             document.getElementById("bamboo").innerHTML = `<img src="./img/bamboo.png" width=32>${bamboo == 69 ? "nice" : bamboo}`
-            document.getElementById("bpm").innerHTML = `Bamboo Per Minute: ${((mineAmount + extractAmount + harvestAmount + factoryAmount) * (60000 / frequency)).toFixed(2)}` 
+            document.getElementById("bps").innerHTML = `Bamboo Per Second: ${(((mineAmount + extractAmount + harvestAmount + factoryAmount) * (60000 / frequency))/60).toFixed(2)}` 
             upgrade_click.innerHTML = "(" + (clickAmount - 1) + ") " + "Upgrade Click: $" + ((clickAmount ** 7) + 300)
             upgrade_frequency.innerHTML = "(" + (frequency > 99 ? frequency_amount : "max") + ") " + "Auto Frequency: $" + (((frequency_amount * 2) ** 5) + 1000)
             bamboo_miner.innerHTML = "(" + (mineAmount) + ") " + "Bamboo Miner: $" + (mineAmount ** 3 + 20)
