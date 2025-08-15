@@ -137,7 +137,7 @@
             extract: { base: 400,   linear: 20,  expo: 1.05, expoBoost: 12 },
             harv:    { base: 2000,  linear: 50,  expo: 1.05, expoBoost: 15 },
             factory: { base: 50000, linear: 5000, expo: 1.10, expoBoost: 25 },
-            freq:    { base: 1000,  linear: 2000,  expo: 1.30, expoBoost: 500 }
+            freq:    { base: 1000,  linear: 2000,  expo: 2, expoBoost: 500 }
         };
 
         function getCost(type, amount) {
@@ -159,7 +159,7 @@
             bps.innerHTML = `Bamboo Per Second: ${(((mineAmount + extractAmount + harvestAmount + factoryAmount) * (60000 / frequency))/60).toFixed(2)}`;
             click_amount.innerHTML = `Click Amount: ${(clickAmount)}`
             upgrade_click.innerHTML = `(${clickAmount - 1}) Upgrade Click: $${getCost("click", clickAmount - 1)}`;
-            upgrade_frequency.innerHTML = `(${frequency_amount}) Auto Frequency: $${getCost("freq", frequency_amount)}`;
+            upgrade_frequency.innerHTML = `(${frequency > 1 ? frequency_amount : "max"}) Auto Frequency: $${frequency > 1 ? ("freq", frequency_amount) : "not available"}`;
             bamboo_miner.innerHTML = `(${mineAmount}) Bamboo Miner: $${getCost("miner", mineAmount)}`;
             bamboo_extractor.innerHTML = `(${extractAmount / 5}) Bamboo Extractor: $${getCost("extract", extractAmount / 5)}`;
             bamboo_harvester.innerHTML = `(${harvestAmount / 50}) Bamboo Harvester: $${getCost("harv", harvestAmount / 50)}`;
@@ -228,10 +228,10 @@
         };
         upgrade_frequency.onclick = function(){
             const cost = getCost("freq", frequency_amount);
-            if (bamboo >= cost){
+            if (bamboo >= cost && frequency > 1){
                 bamboo -= cost;
                 frequency_amount += 1;
-                frequency /= 2;
+                frequency /= 1.2;
                 refresh();
             }
         };
@@ -269,13 +269,12 @@
         };
         exportButton.onclick = exprort;
 
-        setInterval(() => { 
-            bamboo += mineAmount;
-            bamboo += extractAmount;
-            bamboo += harvestAmount;
-            bamboo += factoryAmount;
+        function autoCollect() {
+            bamboo += mineAmount + extractAmount + harvestAmount + factoryAmount;
             refresh();
-        }, frequency);
+            setTimeout(autoCollect, frequency);
+        }
+        autoCollect();
     </script>
 </body>
 </html>
