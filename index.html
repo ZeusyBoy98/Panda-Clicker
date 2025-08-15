@@ -91,7 +91,6 @@
     </style>
 </head>
 <body>
-    <div class="header" id="goal">Goal: Reach 1,000,000 Bamboo</div>
     <div id="bps" style="color:white;">Bamboo Per Minute: </div>
     <div class="header" id="bamboo"><img src="./img/bamboo.png" width=32>0</div>
     <button id="click"><img src="./img/panda.png" width=200></button>
@@ -121,7 +120,6 @@
         let bamboo_harvester = document.getElementById("bamboo_harvester")
         let bamboo_factory = document.getElementById("bamboo_factory")
         let exportButton = document.getElementById("exportButton")
-        let goal = document.getElementById("goal")
         let frequency = parseInt(localStorage.getItem("frequency")) || 500
         let frequency_amount = parseInt(localStorage.getItem("frequency_amount")) || 0
         let bps = document.getElementById("bps")
@@ -140,12 +138,11 @@
             document.getElementById("bamboo").innerHTML = `<img src="./img/bamboo.png" width=32>${bamboo == 69 ? "nice" : bamboo}`
             document.getElementById("bps").innerHTML = `Bamboo Per Second: ${(((mineAmount + extractAmount + harvestAmount + factoryAmount) * (60000 / frequency))/60).toFixed(2)}` 
             upgrade_click.innerHTML = "(" + (clickAmount - 1) + ") " + "Upgrade Click: $" + ((clickAmount ** 7) + 300)
-            upgrade_frequency.innerHTML = "(" + (frequency > 99 ? frequency_amount : "max") + ") " + "Auto Frequency: $" + (((frequency_amount * 2) ** 5) + 1000)
+            upgrade_frequency.innerHTML = "(" + frequency_amount + ") " + "Auto Frequency: $" + (((frequency_amount * 2) ** 5) + 1000)
             bamboo_miner.innerHTML = "(" + (mineAmount) + ") " + "Bamboo Miner: $" + (mineAmount ** 3 + 20)
             bamboo_extractor.innerHTML = "(" + (extractAmount / 5) + ") " + "Bamboo Extractor: $" + (extractAmount ** 3 + 400)
             bamboo_harvester.innerHTML = "(" + (harvestAmount / 50) + ") " + "Bamboo Harvester: $" + (harvestAmount ** 2 + 2000)
             bamboo_factory.innerHTML = "(" + (factoryAmount / 100) + ") " + "Bamboo Factory: $" + (factoryAmount ** 2 + 50000)
-            goal.innerHTML = bamboo < 1000000 ? "Goal: Reach 1,000,000 Bamboo" : "You Won!"
         }
         refresh()
 
@@ -218,16 +215,16 @@
             const cost = (clickAmount ** 7) + 300
             if (bamboo >= cost){
                 bamboo -= cost
-                clickAmount += 1
+                clickAmount *= 2
                 refresh()
             }
         }
         upgrade_frequency.onclick = function(){
             const cost = ((frequency_amount * 2) ** 5) + 1000
-            if (bamboo >= cost && frequency > 49){
+            if (bamboo >= cost){
                 bamboo -= cost
                 frequency_amount += 1
-                frequency -= 50
+                frequency /= 2
                 refresh()
             }
         }
