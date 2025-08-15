@@ -101,6 +101,7 @@
     <button id="bamboo_extractor">Bamboo Extractor: 200</button>
     <button id="bamboo_harvester">Bamboo Harvester</button>
     <button id="bamboo_factory">Bamboo Factory</button>
+    <button id="upgrade_all">Upgrade All</button>
     <div class="header">Save Management</div>
     <button id="exportButton">Export</button>
     <div style="color: white;">Import: </div>
@@ -114,6 +115,7 @@
         let extractAmount = parseInt(localStorage.getItem("extractAmount")) || 0;
         let harvestAmount = parseInt(localStorage.getItem("harvestAmount")) || 0;
         let factoryAmount = parseInt(localStorage.getItem("factoryAmount")) || 0;
+        let allAmount = parseInt(localStorage.getItem("allAmount")) || 1;
         let frequency = parseInt(localStorage.getItem("frequency")) || 500;
         let frequency_amount = parseInt(localStorage.getItem("frequency_amount")) || 0;
 
@@ -125,6 +127,7 @@
         const bamboo_extractor = document.getElementById("bamboo_extractor");
         const bamboo_harvester = document.getElementById("bamboo_harvester");
         const bamboo_factory = document.getElementById("bamboo_factory");
+        const upgrade_all = document.getElementById("upgrade_all");
         const exportButton = document.getElementById("exportButton");
         const bps = document.getElementById("bps");
         const click_amount = document.getElementById("click_amount")
@@ -137,7 +140,8 @@
             extract: { base: 400,   linear: 20,  expo: 1.05, expoBoost: 12 },
             harv:    { base: 2000,  linear: 50,  expo: 1.05, expoBoost: 15 },
             factory: { base: 50000, linear: 5000, expo: 1.10, expoBoost: 25 },
-            freq:    { base: 1000,  linear: 2000,  expo: 2, expoBoost: 500 }
+            freq:    { base: 1000,  linear: 2000,  expo: 2, expoBoost: 500 },
+            all:     { base: 1000000, linear: 5000, expo: 2, expoBoost: 500}
         };
 
         function getCost(type, amount) {
@@ -152,25 +156,27 @@
             localStorage.setItem("extractAmount", extractAmount);
             localStorage.setItem("harvestAmount", harvestAmount);
             localStorage.setItem("factoryAmount", factoryAmount);
+            localStorage.setItem("allAmount", allAmount);
             localStorage.setItem("frequency", frequency);
             localStorage.setItem("frequency_amount", frequency_amount);
 
             document.getElementById("bamboo").innerHTML = `<img src="./img/bamboo.png" width=32>${bamboo == 69 ? "nice" : bamboo}`;
-            bps.innerHTML = `Bamboo Per Second: ${(((mineAmount + extractAmount + harvestAmount + factoryAmount) * (60000 / frequency))/60).toFixed(2)}`;
+            bps.innerHTML = `Bamboo Per Second: ${(((mineAmount + extractAmount + harvestAmount + factoryAmount) * allAmount * (60000 / frequency))/60).toFixed(2)}`;
             click_amount.innerHTML = `Click Amount: ${(clickAmount)}`
             upgrade_click.innerHTML = `(${clickAmount - 1}) Upgrade Click: $${getCost("click", clickAmount - 1)}`;
-            upgrade_frequency.innerHTML = `(${frequency > 1 ? frequency_amount : "max"}) Auto Frequency: $${frequency > 1 ? ("freq", frequency_amount) : "not available"}`;
+            upgrade_frequency.innerHTML = `(${frequency > 1 ? frequency_amount : "max"}) Auto Frequency: $${frequency > 1 ? getCost("freq", frequency_amount) : "not available"}`;
             bamboo_miner.innerHTML = `(${mineAmount}) Bamboo Miner: $${getCost("miner", mineAmount)}`;
             bamboo_extractor.innerHTML = `(${extractAmount / 5}) Bamboo Extractor: $${getCost("extract", extractAmount / 5)}`;
             bamboo_harvester.innerHTML = `(${harvestAmount / 50}) Bamboo Harvester: $${getCost("harv", harvestAmount / 50)}`;
             bamboo_factory.innerHTML = `(${factoryAmount / 100}) Bamboo Factory: $${getCost("factory", factoryAmount / 100)}`;
+            upgrade_all.innerHTML = `x${allAmount} Upgrade All: $${getCost("all", allAmount / 100)}`;
         }
         refresh();
 
         function exprort() {
             const initData = {
                 bamboo, clickAmount, mineAmount, extractAmount,
-                harvestAmount, factoryAmount, frequency, frequency_amount
+                harvestAmount, factoryAmount, frequency, frequency_amount, allAmount
             };
             const jsonString = JSON.stringify(initData);
             const base64Data = btoa(jsonString);
@@ -203,6 +209,7 @@
                     factoryAmount = data.factoryAmount;
                     frequency = data.frequency;
                     frequency_amount = data.frequency_amount;
+                    allAmount = data.allAmount;
                     refresh();
                     alert("Import successful!");
                     event.target.value = "";
@@ -219,7 +226,7 @@
             refresh();
         };
         upgrade_click.onclick = function(){
-            const cost = getCost("click", clickAmount - 1);
+            const cost = getCost("click", clickAmount);
             if (bamboo >= cost){
                 bamboo -= cost;
                 clickAmount *= 2;
@@ -267,10 +274,18 @@
                 refresh();
             }
         };
+        upgrade_all.onclick = function(){
+            const cost = getCost("all", allAmount / 100);
+            if (bamboo >= cost){
+                bamboo -= cost;
+                allAmount *= 2;
+                refresh();
+            }
+        };
         exportButton.onclick = exprort;
 
         function autoCollect() {
-            bamboo += mineAmount + extractAmount + harvestAmount + factoryAmount;
+            bamboo += (mineAmount + extractAmount + harvestAmount + factoryAmount) * allAmount;
             refresh();
             setTimeout(autoCollect, frequency);
         }
