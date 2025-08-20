@@ -128,6 +128,7 @@
         <button id="exportButton">Export</button>
         <div style="color: white;">Import: </div>
         <input type="file" id="importFile" accept=".txt" />
+        <button id="reset">Reset Save (Dangerous)</button>
     </div>
     <div class="achievements">
         <img id="1k" style="filter: grayscale(90%);" src="./ach/1k.png" width=50>
@@ -141,8 +142,8 @@
     </div>
     <script>
         console.log("Don't do it.")
-
-        let bamboo = BigInt(localStorage.getItem("bamboo")) || 0n;
+        
+        let bamboo = BigInt(localStorage.getItem("bamboo") != null ? localStorage.getItem("bamboo") : 0n);
         let clickAmount = parseInt(localStorage.getItem("clickAmount")) || 1;
         let mineAmount = parseInt(localStorage.getItem("mineAmount")) || 0;
         let extractAmount = parseInt(localStorage.getItem("extractAmount")) || 0;
@@ -191,6 +192,7 @@
 
 
         document.getElementById("importFile").addEventListener("change", imprort);
+        document.getElementById("reset").onclick = function(){localStorage.clear(); location.reload();}
 
         const upgradeCosts = {
             click:   { base: 300,   linear: 10000,  expo: 1.01, expoBoost: 3 },
